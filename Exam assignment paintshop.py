@@ -22,24 +22,30 @@ ma1 = []
 ma2 = []
 ma3 = []
 
-# su1 setuptijd machine 1
-# su2 setuptijd machine 2
-# su3 setuptijd machine 3
-# colour = dfo.loc[dfo["Order"] == "ORD11", "Colour"].item() 
-# print(colour)
+def setuptijd(newcol: str, machine: list):
+    """
+    Berekent de setup tijd.
+
+    Returns:
+        De setup tijd in een float.
+    """
+    if not machine:
+        su_tijd = 0
+    else:
+        oldcol = dfo.loc[dfo["Order"] == machine[-1], "Colour"].item()
+        if oldcol == newcol:
+            su_tijd = 0
+        else:
+            su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
+    return su_tijd
 
 
 for i in dfo.index:
     newcol = dfo.loc[i, "Colour"]
-    # col1 = dfo.loc[dfo["Order"] == ma1[-1], "Colour"].item()
-    # col2 = dfo.loc[dfo["Order"] == ma2[-1], "Colour"].item()
-    # col3 = dfo.loc[dfo["Order"] == ma3[-1], "Colour"].item()
-    print(newcol)
 
-
-    ec1 = e1 + (dfo.loc[i, "Surface"]/dfm.loc[0, "Speed"]) #+ su1
-    ec2 = e2 + (dfo.loc[i, "Surface"]/dfm.loc[1, "Speed"]) #+ su2
-    ec3 = e3 + (dfo.loc[i, "Surface"]/dfm.loc[2, "Speed"]) #+ su3
+    ec1 = e1 + (dfo.loc[i, "Surface"]/dfm.loc[0, "Speed"]) + setuptijd(newcol, ma1)
+    ec2 = e2 + (dfo.loc[i, "Surface"]/dfm.loc[1, "Speed"]) + setuptijd(newcol, ma2)
+    ec3 = e3 + (dfo.loc[i, "Surface"]/dfm.loc[2, "Speed"]) + setuptijd(newcol, ma3)
     if ec1 == min(ec1, ec2, ec3):
         ma1.append(dfo.loc[i, "Order"])
         e1 += ec1
@@ -49,6 +55,7 @@ for i in dfo.index:
     else:
         ma3.append(dfo.loc[i, "Order"])
         e3 += ec3
+    
 print(f'Machine 1: {ma1} \n')
 print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
