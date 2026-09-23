@@ -75,4 +75,13 @@ print(f'Machine 1: {ma1} \n')
 print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 print(f'Totale penalty kosten: {total_pen:.2f}')
-#joe joe
+
+#Ideëen voor het opslaan van alle data:
+# def voeg_toe(machine_naam, start, einde, type_, label):
+#     gantt_rows.append({
+#         "Machine": machine_naam,
+#         "Start": start,
+#         "Einde": einde,
+#         "Type": type_,      # "Setup" of "Order"
+#         "Label": label       # bv. kleurwissel of ordernaam
+#     })
