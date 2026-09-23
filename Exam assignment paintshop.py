@@ -22,9 +22,10 @@ ma1 = []
 ma2 = []
 ma3 = []
 
-def setuptijd(newcol: str, machine: list):
+def setuptijd(newcol: str, machine: list) -> float:
     """
-    Berekent de setup tijd.
+    Berekent de setup tijd door de nieuwe kleur te vergelijken met de oude kleur in de machine,
+    als de machine nog geen order heeft toegewezen gekregen dan is de setuptijd automatisch nul.
 
     Returns:
         De setup tijd in een float.
@@ -37,7 +38,7 @@ def setuptijd(newcol: str, machine: list):
             su_tijd = 0
         else:
             su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
-    return su_tijd
+    return float(su_tijd)
 
 
 for i in dfo.index:
