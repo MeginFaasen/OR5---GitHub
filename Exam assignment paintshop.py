@@ -40,6 +40,18 @@ def setuptijd(newcol: str, machine: list) -> float:
             su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
     return float(su_tijd)
 
+def pen_cost(eind, ind):
+    """
+    Berekent de penalty costs.
+
+    Returns:
+        
+    """
+    tard = max(0, eind - dfo.loc[ind, "Deadline"])
+    pen = tard * dfo.loc[ind, "Penalty"]
+    return pen
+
+total_pen = 0
 
 for i in dfo.index:
     newcol = dfo.loc[i, "Colour"]
@@ -49,16 +61,19 @@ for i in dfo.index:
     ec3 = e3 + (dfo.loc[i, "Surface"]/dfm.loc[2, "Speed"]) + setuptijd(newcol, ma3)
     if ec1 == min(ec1, ec2, ec3):
         ma1.append(dfo.loc[i, "Order"])
-        e1 += ec1
+        e1 = ec1
+        total_pen += pen_cost(e1, i)
     elif ec2 ==min(ec1, ec2, ec3):
         ma2.append(dfo.loc[i, "Order"])
-        e2 += ec2
+        e2 = ec2
+        total_pen += pen_cost(e2, i)
     else:
         ma3.append(dfo.loc[i, "Order"])
-        e3 += ec3
-    
+        e3 = ec3
+        total_pen += pen_cost(e3, i)
 print(f'Machine 1: {ma1} \n')
 print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
+print(f'Totale penalty kosten: {total_pen:.2f}')
 
 # eindtijd = eindtijd + surface/machinatijd + setuptijd
