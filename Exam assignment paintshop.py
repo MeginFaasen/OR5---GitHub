@@ -17,6 +17,16 @@ e1 = 0
 e2 = 0
 e3 = 0
 
+# Begintijden (lijst)
+b11 = []
+bt2 = []
+bt3 = []
+
+# Eindtijden (lijst)
+et1 = []
+et2 = []
+et3 = []
+
 #machine orders
 ma1 = []   
 ma2 = []
@@ -63,6 +73,7 @@ for i in dfo.index:
         ma1.append(dfo.loc[i, "Order"])
         e1 = ec1
         total_pen += pen_cost(e1, i)
+        et1.append(e1)
     elif ec2 ==min(ec1, ec2, ec3):
         ma2.append(dfo.loc[i, "Order"])
         e2 = ec2
@@ -85,3 +96,9 @@ print(f'Totale penalty kosten: {total_pen:.2f}')
 #         "Type": type_,      # "Setup" of "Order"
 #         "Label": label       # bv. kleurwissel of ordernaam
 #     })
+
+data = pd.DataFrame(ma1)
+print(data)
+
+
+print(et1)
