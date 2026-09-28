@@ -32,6 +32,9 @@ ma1 = []
 ma2 = []
 ma3 = []
 
+# voor de dictionary
+gantt_rows = []
+
 def setuptijd(newcol: str, machine: list) -> float:
     """
     Berekent de setup tijd door de nieuwe kleur te vergelijken met de oude kleur in de machine,
@@ -61,44 +64,57 @@ def pen_cost(eind, ind):
     pen = tard * dfo.loc[ind, "Penalty"]
     return pen
 
+def voeg_toe(machine_naam, begin, su, einde, order_naam):
+    """Slaat het setup-blok en het order-blok van één order op voor de Gantt-chart."""
+    gantt_rows.append({
+        "Machine": machine_naam,
+        "Start setup": begin,
+        "Einde setup": begin + su,
+        "Start order": begin + su,
+        "Einde order": einde,
+        "Label": order_naam,
+    })
+
 total_pen = 0
 
 for i in dfo.index:
     newcol = dfo.loc[i, "Colour"]
+    ord_nr = dfo.loc[i, "Order"]
+    surface = dfo.loc[i, "Surface"]
 
-    ec1 = e1 + (dfo.loc[i, "Surface"]/dfm.loc[0, "Speed"]) + setuptijd(newcol, ma1)
-    ec2 = e2 + (dfo.loc[i, "Surface"]/dfm.loc[1, "Speed"]) + setuptijd(newcol, ma2)
-    ec3 = e3 + (dfo.loc[i, "Surface"]/dfm.loc[2, "Speed"]) + setuptijd(newcol, ma3)
+    su1 = setuptijd(newcol, ma1)
+    su2 = setuptijd(newcol, ma2)
+    su3 = setuptijd(newcol, ma3)
+
+    ec1 = e1 + su1 + surface/dfm.loc[0, "Speed"]
+    ec2 = e2 + su2 + surface/dfm.loc[1, "Speed"]
+    ec3 = e3 + su3 + surface/dfm.loc[2, "Speed"]
     if ec1 == min(ec1, ec2, ec3):
-        ma1.append(dfo.loc[i, "Order"])
+        ma1.append(ord_nr)
+        voeg_toe("M1", e1, su1, ec1, ord_nr)
         e1 = ec1
         total_pen += pen_cost(e1, i)
-        et1.append(e1)
+    
     elif ec2 ==min(ec1, ec2, ec3):
-        ma2.append(dfo.loc[i, "Order"])
+        ma2.append(ord_nr)
+        voeg_toe("M2", e2, su2, ec2, ord_nr)
         e2 = ec2
         total_pen += pen_cost(e2, i)
+
     else:
-        ma3.append(dfo.loc[i, "Order"])
+        ma3.append(ord_nr)
+        voeg_toe("M3", e3, su3, ec3, ord_nr)
         e3 = ec3
         total_pen += pen_cost(e3, i)
+
 print(f'Machine 1: {ma1} \n')
 print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
 
-# Ideëen voor het opslaan van alle data:
-# def voeg_toe(machine_naam, start, einde, type_, label):
-#     gantt_rows.append({
-#         "Machine": machine_naam,
-#         "Start": start,
-#         "Einde": einde,
-#         "Type": type_,      # "Setup" of "Order"
-#         "Label": label       # bv. kleurwissel of order
-#     })
 
 data = pd.DataFrame(ma1)
-print(data)
+print(gantt_rows)
 
 
 print(et1)
