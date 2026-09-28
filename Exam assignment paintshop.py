@@ -94,7 +94,7 @@ print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
 #         "Start": start,
 #         "Einde": einde,
 #         "Type": type_,      # "Setup" of "Order"
-#         "Label": label       # bv. kleurwissel of ordernaam
+#         "Label": label       # bv. kleurwissel of order
 #     })
 
 data = pd.DataFrame(ma1)
@@ -103,7 +103,8 @@ print(data)
 
 print(et1)
 
-# total_pen2 = 0
+# Setuptijd minimaliseren
+# total_pen2 = 0 
 # for i in dfo.index:
 #     newcol = dfo.loc[i, "Colour"]
 
