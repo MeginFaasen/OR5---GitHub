@@ -1,4 +1,6 @@
 import pandas as pd
+from matplotlib.patches import Patch
+import matplotlib.pyplot as plt
 print('\033c')
 
 # Inladen van de Excel-sheets
@@ -16,16 +18,6 @@ print(dfo.head(10), '\n')
 e1 = 0
 e2 = 0
 e3 = 0
-
-# Begintijden (lijst)
-b11 = []
-bt2 = []
-bt3 = []
-
-# Eindtijden (lijst)
-et1 = []
-et2 = []
-et3 = []
 
 #machine orders
 ma1 = []   
@@ -112,12 +104,30 @@ print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
 
+# SChema visualiseren
+gantt_df = pd.DataFrame.from_dict(gantt_rows)
 
-data = pd.DataFrame(ma1)
-print(gantt_rows)
+machines = ["M1", "M2", "M3"]
+fig, ax = plt.subplots(figsize=(12, 4))
 
+for x, r in gantt_df.iterrows():
+    y = machines.index(r["Machine"])
+    if r["Einde setup"] > r["Start setup"]:
+        ax.broken_barh([(r["Start setup"], r["Einde setup"] - r["Start setup"])],
+                       (y - 0.4, 0.8), facecolors="tab:purple")
+    ax.broken_barh([(r["Start order"], r["Einde order"] - r["Start order"])],
+                   (y - 0.4, 0.8), facecolors="tab:cyan", edgecolor="white")
+    ax.text((r["Start order"] + r["Einde order"]) / 2, y, r["Label"],
+            ha="center", va="center", color="black", fontsize=7)
 
-print(et1)
+ax.set_yticks(range(len(machines)))
+ax.set_yticklabels(machines)
+ax.set_xlabel("Tijd")
+ax.legend(handles=[
+    Patch(facecolor="tab:purple", label="Setup"),
+    Patch(facecolor="tab:cyan", label="Order"),
+])
+plt.show()
 
 # Setuptijd minimaliseren
 # total_pen2 = 0 
