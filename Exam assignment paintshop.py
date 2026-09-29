@@ -14,17 +14,17 @@ print(dfs.head(12))
 dfo = dfo.sort_values(by=["Deadline"], ascending=True) #greedy rule first deadline first
 print(dfo.head(10), '\n')
 
-#eindtijden 
+# Eindtijden 
 e1 = 0
 e2 = 0
 e3 = 0
 
-#machine orders
+# Machine orders
 ma1 = []   
 ma2 = []
 ma3 = []
 
-# voor de dictionary
+# Voorbeireiding (dictionary voor) Gantt Chart, penalty cost & functies
 gantt_rows = []
 
 def setuptijd(newcol: str, machine: list) -> float:
@@ -69,6 +69,7 @@ def voeg_toe(machine_naam, begin, su, einde, order_naam):
 
 total_pen = 0
 
+# Eindtijden berekenen en informatie opslaan voor de gantt chart
 for i in dfo.index:
     newcol = dfo.loc[i, "Colour"]
     ord_nr = dfo.loc[i, "Order"]
@@ -104,7 +105,7 @@ print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
 
-# SChema visualiseren
+# Schema visualiseren
 gantt_df = pd.DataFrame.from_dict(gantt_rows)
 
 machines = ["M1", "M2", "M3"]
