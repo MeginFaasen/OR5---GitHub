@@ -16,8 +16,7 @@ ma1 = []
 ma2 = []
 ma3 = []
 
-print(math.ceil(len(dfo)/3))
-
+# Machines random indelen
 def random_indelen(df):
     """
     """
