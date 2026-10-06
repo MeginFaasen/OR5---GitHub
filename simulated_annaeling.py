@@ -3,6 +3,7 @@ import math
 from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 import random
+import copy
 print('\033c')
 
 # Inladen van de Excel-sheets
@@ -69,10 +70,12 @@ def pen_cost(machines: list):
     for m in machines:
         huidigetijd = 0
         eindtijd = 0
+        verwerkte_orders = []
+
         for o in m:
             surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
             color = dfo.loc[dfo["Order"] == o, "Colour"].item()
-            su = setuptijd(color, m)
+            su = setuptijd(color, verwerkte_orders)
 
             if m == ma1:
                 eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M1', "Speed"].item()
@@ -89,6 +92,7 @@ def pen_cost(machines: list):
                 tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
                 pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
             total_pen += pen
+            verwerkte_orders.append(o)
     return total_pen
     
         
@@ -98,19 +102,39 @@ print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 
 machines = [ma1, ma2, ma3]
-print(pen_cost(machines))
-machine1 = random.choice(machines)
-machine2 = random.choice(machines)
-swap1 = random.choice(machine1)
-swap2 = random.choice(machine2)
-i1 = machine1.index(swap1)
-i2 = machine2.index(swap2)
-machine1[i1] = swap2
-machine2[i2] = swap1
+huidige = pen_cost(machines)
+best = huidige
+print(f'Initiele penalty: {best:.2f}')
+T = 500 #temperatuur
+iteraties = 1000
+alpha = 0.999
 
-print(pen_cost(machines))
-# 
-print('After swap:')
-print(f'Machine 1: {ma1} \n')
-print(f'Machine 2: {ma2} \n')
-print(f'Machine 3: {ma3} \n')
+for i in range(iteraties):
+    machine1 = random.choice(machines)
+    machine2 = random.choice(machines)
+    swap1 = random.choice(machine1)
+    swap2 = random.choice(machine2)
+    i1 = machine1.index(swap1)
+    i2 = machine2.index(swap2)
+    machine1[i1] = swap2
+    machine2[i2] = swap1
+
+    kandidaat = pen_cost(machines)
+    delta = kandidaat - huidige
+    acceptatie = math.exp(-delta/T)
+    if delta < 0 or random.random() < acceptatie: # de move wordt geaccepteerd
+        huidige = kandidaat
+        if kandidaat < best:
+            best = kandidaat
+            beste_schema = machines.copy()
+    else: # De move wordt niet geaccepteerd
+        machine1[i1] = swap1 # swap terug draaien
+        machine2[i2] = swap2
+    T *= alpha
+
+ma1, ma2, ma3 = beste_schema   # herstel de beste indeling aan het eind
+print(f'Beste schema penalty kosten: {best:.2f}')
+print('Beste indeling:')
+print(f'Machine 1: {ma1}')
+print(f'Machine 2: {ma2}')
+print(f'Machine 3: {ma3}')
