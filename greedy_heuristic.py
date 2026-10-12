@@ -7,12 +7,9 @@ print('\033c')
 dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
 dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
 dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
-print(dfm.head())
-print(dfs.head(12))
 
 # Dataframe sorteren op deadline
 dfo = dfo.sort_values(by=["Deadline"], ascending=True) #greedy rule first deadline first
-print(dfo.head(10), '\n')
 
 # Eindtijden 
 e1 = 0
@@ -109,6 +106,7 @@ print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
 gantt_df = pd.DataFrame.from_dict(gantt_rows)
 
 machines = ["M1", "M2", "M3"]
+beste_schema1 = ma1, ma2, ma3
 fig, ax = plt.subplots(figsize=(12, 4))
 
 for x, r in gantt_df.iterrows():
