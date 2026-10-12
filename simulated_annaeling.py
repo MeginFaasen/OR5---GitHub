@@ -94,20 +94,54 @@ def pen_cost(machines: list):
             total_pen += pen
             verwerkte_orders.append(o)
     return total_pen
+
+#Visualiseren
+gantt_rows = []
+
+def voeg_toe(machine_naam, begin, su, einde, order_naam):
+    """Slaat het setup-blok en het order-blok van één order op voor de Gantt-chart."""
+    gantt_rows.append({
+        "Machine": machine_naam,
+        "Start setup": begin,
+        "Einde setup": begin + su,
+        "Start order": begin + su,
+        "Einde order": einde,
+        "Label": order_naam,
+    })
+
+def bouw_gantt(ma1, ma2, ma3):
+    machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3}
+    for naam, orders in machines_dict.items():
+        eindtijd = 0
+        verwerkte_orders = []
+        speed = dfm.loc[dfm["Machine"] == naam, "Speed"].item()
+
+        for o in orders:
+            surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
+            color = dfo.loc[dfo["Order"] == o, "Colour"].item()
+            su = setuptijd(color, verwerkte_orders)
+
+            begin = eindtijd
+            eindtijd = begin + su + surface / speed
+
+            voeg_toe(naam, begin, su, eindtijd, o)
+            verwerkte_orders.append(o)
+
     
-        
+# simulated annealing  
 random_indelen(dfo)
-print(f'Machine 1: {ma1} \n')
-print(f'Machine 2: {ma2} \n')
-print(f'Machine 3: {ma3} \n')
+print('Initiele indeling:')
+print(f'Machine 1: {ma1}')
+print(f'Machine 2: {ma2}')
+print(f'Machine 3: {ma3}')
 
 machines = [ma1, ma2, ma3]
 huidige = pen_cost(machines)
 best = huidige
 print(f'Initiele penalty: {best:.2f}')
 T = 500 #temperatuur
-iteraties = 1000
-alpha = 0.999
+iteraties = 5000
+alpha = 0.995
 
 for i in range(iteraties):
     machine1 = random.choice(machines)
@@ -121,20 +155,50 @@ for i in range(iteraties):
 
     kandidaat = pen_cost(machines)
     delta = kandidaat - huidige
-    acceptatie = math.exp(-delta/T)
-    if delta < 0 or random.random() < acceptatie: # de move wordt geaccepteerd
+    if delta < 0:
+        geaccepteerd = True
+    else:
+        acceptatie = math.exp(-delta / T)
+        geaccepteerd = random.random() < acceptatie
+
+    if geaccepteerd:
         huidige = kandidaat
         if kandidaat < best:
             best = kandidaat
-            beste_schema = machines.copy()
-    else: # De move wordt niet geaccepteerd
-        machine1[i1] = swap1 # swap terug draaien
+            beste_schema = copy.deepcopy(machines)
+    else:
+        machine1[i1] = swap1   # swap terugdraaien
         machine2[i2] = swap2
     T *= alpha
 
 ma1, ma2, ma3 = beste_schema   # herstel de beste indeling aan het eind
+bouw_gantt(ma1, ma2, ma3) 
 print(f'Beste schema penalty kosten: {best:.2f}')
 print('Beste indeling:')
 print(f'Machine 1: {ma1}')
 print(f'Machine 2: {ma2}')
 print(f'Machine 3: {ma3}')
+
+gantt_df = pd.DataFrame.from_dict(gantt_rows)
+
+machines_labels = ["M1", "M2", "M3"]
+fig, ax = plt.subplots(figsize=(12, 4))
+
+for x, r in gantt_df.iterrows():
+    y = machines_labels.index(r["Machine"])
+    if r["Einde setup"] > r["Start setup"]:
+        ax.broken_barh([(r["Start setup"], r["Einde setup"] - r["Start setup"])],
+                       (y - 0.4, 0.8), facecolors="tab:purple")
+    ax.broken_barh([(r["Start order"], r["Einde order"] - r["Start order"])],
+                   (y - 0.4, 0.8), facecolors="tab:cyan", edgecolor="white")
+    ax.text((r["Start order"] + r["Einde order"]) / 2, y, r["Label"],
+            ha="center", va="center", color="black", fontsize=7)
+
+ax.set_yticks(range(len(machines_labels)))
+ax.set_yticklabels(machines_labels)
+ax.set_xlabel("Tijd")
+ax.legend(handles=[
+    Patch(facecolor="tab:purple", label="Setup"),
+    Patch(facecolor="tab:cyan", label="Order"),
+])
+plt.show()

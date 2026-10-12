@@ -129,29 +129,3 @@ ax.legend(handles=[
     Patch(facecolor="tab:cyan", label="Order"),
 ])
 plt.show()
-
-# Setuptijd minimaliseren
-# total_pen2 = 0 
-# for i in dfo.index:
-#     newcol = dfo.loc[i, "Colour"]
-
-#     ec1 = setuptijd(newcol, ma1)
-#     ec2 = setuptijd(newcol, ma2)
-#     ec3 = setuptijd(newcol, ma3)
-#     if ec1 == min(ec1, ec2, ec3):
-#         ma1.append(dfo.loc[i, "Order"])
-#         e1 += ec1 + (dfo.loc[i, "Surface"]/dfm.loc[0, "Speed"])
-#         total_pen2 += pen_cost(e1, i)
-#         et1.append(e1)
-#     elif ec2 ==min(ec1, ec2, ec3):
-#         ma2.append(dfo.loc[i, "Order"])
-#         e2 += ec2 + (dfo.loc[i, "Surface"]/dfm.loc[1, "Speed"])
-#         total_pen2 += pen_cost(e2, i)
-#     else:
-#         ma3.append(dfo.loc[i, "Order"])
-#         e3 += ec3 + (dfo.loc[i, "Surface"]/dfm.loc[2, "Speed"])
-#         total_pen2 += pen_cost(e3, i)
-# print(f'Machine 1: {ma1} \n')
-# print(f'Machine 2: {ma2} \n')
-# print(f'Machine 3: {ma3} \n')
-# print(f'Totale penalty kosten greedy rule 2: {total_pen2:.2f}')
