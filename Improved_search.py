@@ -11,30 +11,7 @@ dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
 dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
 dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
 
-from greedy_heuristic import beste_schema1
-beste_schema = beste_schema1
-
-ma1 = beste_schema[0]
-ma2 = beste_schema[1]
-ma3 = beste_schema[2]
-
-def setuptijd(newcol: str, machine: list) -> float:
-    """
-    Berekent de setup tijd door de nieuwe kleur te vergelijken met de oude kleur in de machine,
-    als de machine nog geen order heeft toegewezen gekregen dan is de setuptijd automatisch nul.
-
-    Returns:
-        De setup tijd in een float.
-    """
-    if not machine:
-        su_tijd = 0
-    else:
-        oldcol = dfo.loc[dfo["Order"] == machine[-1], "Colour"].item()
-        if oldcol == newcol:
-            su_tijd = 0
-        else:
-            su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
-    return float(su_tijd)
+from functies import setuptijd
 
 
 def pen_cost(machines: list):
@@ -44,6 +21,7 @@ def pen_cost(machines: list):
     Returns:
         
     """
+    
     total_pen = 0
     for m in machines:
         huidigetijd = 0
@@ -55,12 +33,12 @@ def pen_cost(machines: list):
             color = dfo.loc[dfo["Order"] == o, "Colour"].item()
             su = setuptijd(color, verwerkte_orders)
 
-            if m == ma1:
+            if m == machines[0]:
                 eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M1', "Speed"].item()
                 tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
                 pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
 
-            elif m == ma2:
+            elif m == machines[1]:
                 eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M2', "Speed"].item()
                 tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
                 pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
@@ -108,44 +86,46 @@ def bouw_gantt(ma1, ma2, ma3):
     
 # Improved search
 
-print('Initiele indeling:')
-print(f'Machine 1: {ma1}')
-print(f'Machine 2: {ma2}')
-print(f'Machine 3: {ma3}')
+def improving_search(beste_schema: list, iteraties: int):
+    huidige = pen_cost(beste_schema)
+    best = huidige
+    improved_schema = copy.deepcopy(beste_schema)
 
-machines = [ma1, ma2, ma3]
-huidige = pen_cost(machines)
-best = huidige
-print(f'Initiele penalty: {best:.2f}')
-iteraties = 50
+    for i in range(iteraties):
+        machine1 = random.choice(beste_schema)
+        machine2 = random.choice(beste_schema)
+        swap1 = random.choice(machine1)
+        swap2 = random.choice(machine2)
+        i1 = machine1.index(swap1)
+        i2 = machine2.index(swap2)
+        machine1[i1] = swap2
+        machine2[i2] = swap1
 
-for i in range(iteraties):
-    machine1 = random.choice(machines)
-    machine2 = random.choice(machines)
-    swap1 = random.choice(machine1)
-    swap2 = random.choice(machine2)
-    i1 = machine1.index(swap1)
-    i2 = machine2.index(swap2)
-    machine1[i1] = swap2
-    machine2[i2] = swap1
+        kandidaat = pen_cost(beste_schema)
+        if kandidaat < huidige: #geaccepteerd
+            huidige = kandidaat
+            if kandidaat < best:
+                best = kandidaat
+                improved_schema = copy.deepcopy(beste_schema)
+        else: #niet geaccepteerd
+            machine1[i1] = swap1   # swap terugdraaien
+            machine2[i2] = swap2
+    pen = print(f'Improved penalty cost: {pen_cost(improved_schema):.2f}')
+    sched = print(
+        f"Ma1: {improved_schema[0]}\n"
+        f"Ma2: {improved_schema[1]}\n"
+        f"Ma3: {improved_schema[2]}"
+    )
+    return pen, sched # herstel de beste indeling aan het eind
+# bouw_gantt(ma1, ma2, ma3) 
 
-    kandidaat = pen_cost(machines)
-    if kandidaat < huidige: #geaccepteerd
-        huidige = kandidaat
-        if kandidaat < best:
-            best = kandidaat
-            beste_schema_IS = copy.deepcopy(machines)
-    else: #niet geaccepteerd
-        machine1[i1] = swap1   # swap terugdraaien
-        machine2[i2] = swap2
 
-ma1, ma2, ma3 = beste_schema_IS   # herstel de beste indeling aan het eind
-bouw_gantt(ma1, ma2, ma3) 
-print(f'Beste schema penalty kosten: {best:.2f}')
-print('Beste indeling:')
-print(f'Machine 1: {ma1}')
-print(f'Machine 2: {ma2}')
-print(f'Machine 3: {ma3}')
+
+# print('Beste indeling:')
+# print(f'Machine 1: {ma1}')
+# print(f'Machine 2: {ma2}')
+# print(f'Machine 3: {ma3}')
+# print(f'Beste schema penalty kosten: {best:.2f}')
 
 # gantt_df = pd.DataFrame.from_dict(gantt_rows)
 

@@ -1,6 +1,8 @@
 import pandas as pd
 from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
+from functies import setuptijd
+from Improved_search import improving_search
 print('\033c')
 
 # Inladen van de Excel-sheets
@@ -24,23 +26,6 @@ ma3 = []
 # Voorbeireiding (dictionary voor) Gantt Chart, penalty cost & functies
 gantt_rows = []
 
-def setuptijd(newcol: str, machine: list) -> float:
-    """
-    Berekent de setup tijd door de nieuwe kleur te vergelijken met de oude kleur in de machine,
-    als de machine nog geen order heeft toegewezen gekregen dan is de setuptijd automatisch nul.
-
-    Returns:
-        De setup tijd in een float.
-    """
-    if not machine:
-        su_tijd = 0
-    else:
-        oldcol = dfo.loc[dfo["Order"] == machine[-1], "Colour"].item()
-        if oldcol == newcol:
-            su_tijd = 0
-        else:
-            su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
-    return float(su_tijd)
 
 def pen_cost(eind, ind):
     """
@@ -102,28 +87,34 @@ print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
 
+beste_schema = []
+beste_schema.append(ma1)
+beste_schema.append(ma2)
+beste_schema.append(ma3)
+
+
 # Schema visualiseren
-gantt_df = pd.DataFrame.from_dict(gantt_rows)
+# gantt_df = pd.DataFrame.from_dict(gantt_rows)
 
-machines = ["M1", "M2", "M3"]
-beste_schema1 = ma1, ma2, ma3
-fig, ax = plt.subplots(figsize=(12, 4))
+# machines = ["M1", "M2", "M3"]
+print(improving_search(beste_schema, 50))
+# fig, ax = plt.subplots(figsize=(12, 4))
 
-for x, r in gantt_df.iterrows():
-    y = machines.index(r["Machine"])
-    if r["Einde setup"] > r["Start setup"]:
-        ax.broken_barh([(r["Start setup"], r["Einde setup"] - r["Start setup"])],
-                       (y - 0.4, 0.8), facecolors="tab:purple")
-    ax.broken_barh([(r["Start order"], r["Einde order"] - r["Start order"])],
-                   (y - 0.4, 0.8), facecolors="tab:cyan", edgecolor="white")
-    ax.text((r["Start order"] + r["Einde order"]) / 2, y, r["Label"],
-            ha="center", va="center", color="black", fontsize=7)
+# for x, r in gantt_df.iterrows():
+#     y = machines.index(r["Machine"])
+#     if r["Einde setup"] > r["Start setup"]:
+#         ax.broken_barh([(r["Start setup"], r["Einde setup"] - r["Start setup"])],
+#                        (y - 0.4, 0.8), facecolors="tab:purple")
+#     ax.broken_barh([(r["Start order"], r["Einde order"] - r["Start order"])],
+#                    (y - 0.4, 0.8), facecolors="tab:cyan", edgecolor="white")
+#     ax.text((r["Start order"] + r["Einde order"]) / 2, y, r["Label"],
+#             ha="center", va="center", color="black", fontsize=7)
 
-ax.set_yticks(range(len(machines)))
-ax.set_yticklabels(machines)
-ax.set_xlabel("Tijd")
-ax.legend(handles=[
-    Patch(facecolor="tab:purple", label="Setup"),
-    Patch(facecolor="tab:cyan", label="Order"),
-])
-plt.show()
+# ax.set_yticks(range(len(machines)))
+# ax.set_yticklabels(machines)
+# ax.set_xlabel("Tijd")
+# ax.legend(handles=[
+#     Patch(facecolor="tab:purple", label="Setup"),
+#     Patch(facecolor="tab:cyan", label="Order"),
+# ])
+# plt.show()
