@@ -5,18 +5,18 @@ import matplotlib.pyplot as plt
 import random
 import copy
 
-import functies 
+from functies import plot_SA
 print('\033c')
 
-# # Inladen van de Excel-sheets met 4 machines
-# dfo = pd.read_excel('PaintShop - November 2026.xlsx', 'Orders')
-# dfm = pd.read_excel('PaintShop - November 2026.xlsx', 'Machines')
-# dfs = pd.read_excel('PaintShop - November 2026.xlsx', 'Setups')
+# Inladen van de Excel-sheets met 4 machines
+dfo = pd.read_excel('PaintShop - November 2026.xlsx', 'Orders')
+dfm = pd.read_excel('PaintShop - November 2026.xlsx', 'Machines')
+dfs = pd.read_excel('PaintShop - November 2026.xlsx', 'Setups')
 
-# Inladen van de Excel-sheets met 3 machines
-dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
-dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
-dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
+# # Inladen van de Excel-sheets met 3 machines
+# dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
+# dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
+# dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
 
 # Voor sneller werk
 surface_dict = dict(zip(dfo["Order"], dfo["Surface"]))
@@ -106,7 +106,7 @@ def pen_cost(machines: list):
             pen = tard * penalty_dict[o]
             total_pen += pen
             verwerkte_orders.append(o)
-        return total_pen
+    return total_pen
     
 # simulated annealing  
 random_indelen(dfo)
@@ -126,7 +126,7 @@ best = huidige
 print(f'Initiele penalty: {best:.2f}')
 T = 500 #temperatuur
 iteraties = 5000
-alpha = 0.995
+alpha = 0.999
 
 huidige_lijst = []
 best_lijst = []
@@ -174,7 +174,7 @@ print('Beste indeling:')
 for nr, m in enumerate(beste_schema, start=1):
     print(f'Machine {nr}: {m}')
 
-# plot_SA(huidige_lijst, best_lijst, T_lijst)
+plot_SA(huidige_lijst, best_lijst, T_lijst)
 
 # #gantt visualisatie
 # gantt_df = pd.DataFrame.from_dict(gantt_rows)
