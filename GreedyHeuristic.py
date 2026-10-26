@@ -1,6 +1,7 @@
 import pandas as pd
 from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
+from Simulated_annaeling_3&M4 
 print('\033c')
 
 # # Inladen van de Excel-sheets met 4 machines
@@ -73,59 +74,63 @@ def voeg_toe(machine_naam, begin, su, einde, order_naam):
         "Label": order_naam,
     })
 
-total_pen = 0
+# total_pen = 0
 
-# Eindtijden berekenen en informatie opslaan voor de gantt chart
-for i in dfo.index:
-    newcol = dfo.loc[i, "Colour"]
-    ord_nr = dfo.loc[i, "Order"]
-    surface = dfo.loc[i, "Surface"]
+def greedy_EDD(data):
+    for i in dfo.index:
+        newcol = dfo.loc[i, "Colour"]
+        ord_nr = dfo.loc[i, "Order"]
+        surface = dfo.loc[i, "Surface"]
 
-    su1 = setuptijd(newcol, ma1)
-    su2 = setuptijd(newcol, ma2)
-    su3 = setuptijd(newcol, ma3)
-    if len(dfm) == 4:
-        su4 = setuptijd(newcol, ma4)
+        su1 = setuptijd(newcol, ma1)
+        su2 = setuptijd(newcol, ma2)
+        su3 = setuptijd(newcol, ma3)
+        if len(dfm) == 4:
+            su4 = setuptijd(newcol, ma4)
 
-    ec1 = e1 + su1 + surface/dfm.loc[0, "Speed"]
-    ec2 = e2 + su2 + surface/dfm.loc[1, "Speed"]
-    ec3 = e3 + su3 + surface/dfm.loc[2, "Speed"]
-    if len(dfm) == 4:
-        ec4 = e4 + su4 + surface/dfm.loc[3, "Speed"]
-    else:
-        ec4 = 100000
-    
-    if ec1 == min(ec1, ec2, ec3, ec4):
-        ma1.append(ord_nr)
-        voeg_toe("M1", e1, su1, ec1, ord_nr)
-        e1 = ec1
-        total_pen += pen_cost(e1, i)
-    
-    elif ec2 == min(ec1, ec2, ec3, ec4):
-        ma2.append(ord_nr)
-        voeg_toe("M2", e2, su2, ec2, ord_nr)
-        e2 = ec2
-        total_pen += pen_cost(e2, i)
+        ec1 = e1 + su1 + surface/dfm.loc[0, "Speed"]
+        ec2 = e2 + su2 + surface/dfm.loc[1, "Speed"]
+        ec3 = e3 + su3 + surface/dfm.loc[2, "Speed"]
+        if len(dfm) == 4:
+            ec4 = e4 + su4 + surface/dfm.loc[3, "Speed"]
+        else:
+            ec4 = 100000
+        
+        if ec1 == min(ec1, ec2, ec3, ec4):
+            ma1.append(ord_nr)
+            voeg_toe("M1", e1, su1, ec1, ord_nr)
+            e1 = ec1
+            # total_pen += pen_cost(e1, i)
+        
+        elif ec2 == min(ec1, ec2, ec3, ec4):
+            ma2.append(ord_nr)
+            voeg_toe("M2", e2, su2, ec2, ord_nr)
+            e2 = ec2
+            # total_pen += pen_cost(e2, i)
 
-    elif ec3 == min(ec1, ec2, ec3, ec4):
-        ma3.append(ord_nr)
-        voeg_toe("M3", e3, su3, ec3, ord_nr)
-        e3 = ec3
-        total_pen += pen_cost(e3, i)
+        elif ec3 == min(ec1, ec2, ec3, ec4):
+            ma3.append(ord_nr)
+            voeg_toe("M3", e3, su3, ec3, ord_nr)
+            e3 = ec3
+            # total_pen += pen_cost(e3, i)
 
-    else:
-        ma4.append(ord_nr)
-        voeg_toe("M4", e4, su4, ec4, ord_nr)
-        e4 = ec4
-        total_pen += pen_cost(e4, i)
-    
+        else:
+            ma4.append(ord_nr)
+            voeg_toe("M4", e4, su4, ec4, ord_nr)
+            e4 = ec4
+            # total_pen += pen_cost(e4, i)
+
+    greedy_schema = [ma1, ma2, ma3]
+    if len(dfm)==4:
+        greedy_schema.append(ma4)
+    return greedy_schema
 
 print(f'Machine 1: {ma1} \n')
 print(f'Machine 2: {ma2} \n')
 print(f'Machine 3: {ma3} \n')
 if len(dfm) == 4:
     print(f'Machine 4: {ma4} \n')
-print(f'Totale penalty kosten greedy rule 1: {total_pen:.2f}')
+print(f'Totale penalty kosten greedy rule 1: {pen_cost(greedy_schema) :.2f}')
 
 # Schema visualiseren
 gantt_df = pd.DataFrame.from_dict(gantt_rows)
