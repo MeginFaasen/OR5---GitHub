@@ -3,15 +3,15 @@ from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 print('\033c')
 
-# Inladen van de Excel-sheets met 4 machines
-dfo = pd.read_excel('PaintShop - November 2026.xlsx', 'Orders')
-dfm = pd.read_excel('PaintShop - November 2026.xlsx', 'Machines')
-dfs = pd.read_excel('PaintShop - November 2026.xlsx', 'Setups')
+# # Inladen van de Excel-sheets met 4 machines
+# dfo = pd.read_excel('PaintShop - November 2026.xlsx', 'Orders')
+# dfm = pd.read_excel('PaintShop - November 2026.xlsx', 'Machines')
+# dfs = pd.read_excel('PaintShop - November 2026.xlsx', 'Setups')
 
-# # Inladen van de Excel-sheets met 3 machines
-# dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
-# dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
-# dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
+# Inladen van de Excel-sheets met 3 machines
+dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
+dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
+dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
 
 # Dataframe sorteren op deadline
 dfo = dfo.sort_values(by=["Deadline"], ascending=True) #greedy rule first deadline first

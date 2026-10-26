@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import random
 import copy
 
-from functies import plot_SA
+import functies 
 print('\033c')
 
 # # Inladen van de Excel-sheets met 4 machines
@@ -109,43 +109,6 @@ def pen_cost(machines: list):
             total_pen += pen
             verwerkte_orders.append(o)
     return total_pen
-
-#Visualiseren
-gantt_rows = []
-
-def voeg_toe(machine_naam, begin, su, einde, order_naam):
-    """Slaat het setup-blok en het order-blok van één order op voor de Gantt-chart."""
-    gantt_rows.append({
-        "Machine": machine_naam,
-        "Start setup": begin,
-        "Einde setup": begin + su,
-        "Start order": begin + su,
-        "Einde order": einde,
-        "Label": order_naam,
-    })
-
-def bouw_gantt(machines: list):
-    if len(machines)==3:
-        machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3}
-    else: 
-        machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3, "M4": ma4}
-
-    for naam, orders in machines_dict.items():
-        eindtijd = 0
-        verwerkte_orders = []
-        speed = dfm.loc[dfm["Machine"] == naam, "Speed"].item()
-
-        for o in orders:
-            surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
-            color = dfo.loc[dfo["Order"] == o, "Colour"].item()
-            su = setuptijd(color, verwerkte_orders)
-
-            begin = eindtijd
-            eindtijd = begin + su + surface / speed
-
-            voeg_toe(naam, begin, su, eindtijd, o)
-            verwerkte_orders.append(o)
-
     
 # simulated annealing  
 random_indelen(dfo)
@@ -207,7 +170,7 @@ if len(dfm)==3:
     ma1, ma2, ma3 = beste_schema # herstel de beste indeling aan het eind
 else:
     ma1, ma2, ma3, ma4 = beste_schema
-bouw_gantt(beste_schema) 
+# bouw_gantt(beste_schema) /
 print(f'Beste schema penalty kosten: {best:.2f}')
 print('Beste indeling:')
 for nr, m in enumerate(beste_schema, start=1):
