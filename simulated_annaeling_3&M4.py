@@ -18,6 +18,13 @@ dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
 dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
 dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
 
+# Voor sneller werk
+surface_dict = dict(zip(dfo["Order"], dfo["Surface"]))
+color_dict = dict(zip(dfo["Order"], dfo["Colour"]))
+deadline_dict = dict(zip(dfo["Order"], dfo["Deadline"]))
+penalty_dict = dict(zip(dfo["Order"], dfo["Penalty"]))
+speed_dict = dict(zip(dfm["Machine"], dfm["Speed"]))
+
 ma1 = []
 ma2 = []
 ma3 = []
@@ -66,7 +73,7 @@ def setuptijd(newcol: str, machine: list) -> float:
     if not machine:
         su_tijd = 0
     else:
-        oldcol = dfo.loc[dfo["Order"] == machine[-1], "Colour"].item()
+        oldcol = color_dict[machine[-1]]
         if oldcol == newcol:
             su_tijd = 0
         else:
@@ -80,35 +87,26 @@ def pen_cost(machines: list):
 
     Returns:
         
+
     """
     total_pen = 0
-    for m in machines:
-        huidigetijd = 0
+    for nr, m in enumerate(machines):
         eindtijd = 0
         verwerkte_orders = []
+        machine_naam = f"M{nr + 1}" 
+        speed = speed_dict[machine_naam]
 
         for o in m:
-            surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
-            color = dfo.loc[dfo["Order"] == o, "Colour"].item()
+            surface = surface_dict[o]
+            color = color_dict[o]
             su = setuptijd(color, verwerkte_orders)
 
-            if m == ma1:
-                eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M1', "Speed"].item()
-                tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
-                pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
-
-            elif m == ma2:
-                eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M2', "Speed"].item()
-                tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
-                pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
-
-            else:
-                eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M3', "Speed"].item()
-                tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
-                pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
+            eindtijd = eindtijd + su + surface / speed
+            tard = max(0, eindtijd - deadline_dict[o])
+            pen = tard * penalty_dict[o]
             total_pen += pen
             verwerkte_orders.append(o)
-    return total_pen
+        return total_pen
     
 # simulated annealing  
 random_indelen(dfo)
@@ -171,12 +169,12 @@ if len(dfm)==3:
 else:
     ma1, ma2, ma3, ma4 = beste_schema
 # bouw_gantt(beste_schema) /
-print(f'Beste schema penalty kosten: {best:.2f}')
+print(f'Beste schema penalty kosten: {pen_cost(beste_schema):.2f}')
 print('Beste indeling:')
 for nr, m in enumerate(beste_schema, start=1):
     print(f'Machine {nr}: {m}')
 
-plot_SA(huidige_lijst, best_lijst, T_lijst)
+# plot_SA(huidige_lijst, best_lijst, T_lijst)
 
 # #gantt visualisatie
 # gantt_df = pd.DataFrame.from_dict(gantt_rows)

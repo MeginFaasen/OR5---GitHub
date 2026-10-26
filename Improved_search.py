@@ -42,7 +42,7 @@ def improving_search(beste_schema: list, iteraties: int):
 
     print(f'Improved penalty cost: {best:.2f}')
     for nr, m in enumerate(improved_schema, start=1):
-        print(f'Machine {nr}: {m}')
+        print(f'Machine {nr}: {m}\n')
 
     return improved_schema, best
 
