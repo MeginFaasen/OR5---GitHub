@@ -10,12 +10,18 @@ import random
 import copy
 print('\033c') 
 
-
-dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
-dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
-dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
-
 MACHINE_NAMEN = ["M1", "M2", "M3"]
+
+def laad_data(bestandsnaam: str) -> ProblemData:
+    dfo = pd.read_excel(bestandsnaam, 'Orders')
+    dfm = pd.read_excel(bestandsnaam, 'Machines')
+    dfs = pd.read_excel(bestandsnaam, 'Setups')
+
+    surface_dict=dict(zip(dfo["Order"], dfo["Surface"]))
+    colour_dict=dict(zip(dfo["Order"], dfo["Colour"]))
+    deadline_dict=dict(zip(dfo["Order"], dfo["Deadline"]))
+    penalty_dict=dict(zip(dfo["Order"], dfo["Penalty"]))
+    speed_dict=dict(zip(dfm["Machine"], dfm["Speed"]))
 
 def setuptijd(newcol: str, machine: list) -> float:
     """
@@ -25,7 +31,7 @@ def setuptijd(newcol: str, machine: list) -> float:
     if not machine:
         su_tijd = 0
     else:
-        oldcol = dfo.loc[dfo["Order"] == machine[-1], "Colour"].item()
+        oldcol = colour_dict[machine[-1]]
         if oldcol == newcol:
             su_tijd = 0
         else:

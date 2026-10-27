@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import random
 import copy
 
-from functies import plot_SA
+from functies import plot_SA, laad_data
 from GreedyHeuristic import greedy_EDD
 print('\033c')
 
@@ -31,8 +31,10 @@ ma2 = []
 ma3 = []
 if len(dfm)==4:
     ma4 = []
-def main():
-    greedy_EDD()
+def main(bestand):
+    data = laad_data(bestand)
+    greedy_schema = greedy_EDD(data)
+    print(f'Greedy penalty: {pen_cost(data, greedy_schema):.2f}')
 
 if __name__ == "__main__":
     main('PaintShop - November 2026.xlsx')   # wordt ALLEEN uitgevoerd als je main.py zelf start
