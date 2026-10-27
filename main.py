@@ -31,5 +31,9 @@ ma2 = []
 ma3 = []
 if len(dfm)==4:
     ma4 = []
+def main():
+    greedy_EDD()
 
-greedy_EDD()
+if __name__ == "__main__":
+    main('PaintShop - November 2026.xlsx')   # wordt ALLEEN uitgevoerd als je main.py zelf start
+    # main('PaintShop - September 2026.xlsx')
