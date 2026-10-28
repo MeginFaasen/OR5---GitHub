@@ -36,13 +36,6 @@ def main(bestand):
     experiment_improved, experiment_improved_pen = improving_search(data, experiment_schema, iteraties=1000)
     print(f'experiment + DIS penalty: {experiment_improved_pen:.2f}')
 
-    # experiment -> simulated annealing
-    exp_sa_schema, exp_sa_pen, huidige_lijst, best_lijst, T_lijst = simulated_annealing(
-    data, experiment_schema, T=500, iteraties=5000, alpha=0.999
-    )
-    print(f'SA penalty: {exp_sa_pen:.2f}')
-    plot_SA(huidige_lijst, best_lijst, T_lijst)
-
     #het aller beste schema zoeken
     beste_pen = min(
         pen_cost(data, greedy_schema),
@@ -51,7 +44,6 @@ def main(bestand):
         pen_cost(data, sa_improved),
         pen_cost(data, experiment_schema), 
         pen_cost(data, experiment_improved),
-        pen_cost(data, exp_sa_schema),
         )
     if beste_pen == pen_cost(data, greedy_schema):
         beste_schema = greedy_schema
@@ -71,10 +63,6 @@ def main(bestand):
     elif beste_pen == experiment_improved_pen:
         beste_schema = experiment_improved
         print(f'Het beste schema is geworden: experiment minste setuptijd improved search!')
-    else:
-        beste_schema = exp_sa_schema
-        print(f'Het beste schema is geworden: experiment minste setuptijd en dan nog SA!')
-    export_excel(data, beste_schema, bestand)
 
     return greedy_schema, greedy_improved, sa_schema, sa_improved, experiment_schema, experiment_improved
 

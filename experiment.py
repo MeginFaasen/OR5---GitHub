@@ -2,16 +2,13 @@ from functies import setuptijd
 import math as m
 
 def experiment_su(data: dict) -> list:
-    """Zo min mogelijk setuptijd als greedy rule
+    """Greedy rule: minimaliseer setuptijd; bij gelijkspel kies de snelste machine.
     """
     n = data["n_machines"]
     ceiling =  m.ceil(len(data["surface"]) / n)
 
     ma1, ma2, ma3 = [], [], []
     ma4 = [] if n == 4 else None
-
-    e1 = e2 = e3 = 0
-    e4 = 0 if n == 4 else None
 
     dfo_sorted = data["dfo"].sort_values(by=["Deadline"], ascending=True)
 
@@ -29,22 +26,34 @@ def experiment_su(data: dict) -> list:
         else:
             su4 = float("inf")
 
-        if all(len(ma) >= ceiling for ma in [ma1, ma2, ma3] + ([ma4] if n == 4 else [])):
-            raise ValueError("Alle machines hebben hun maximale capaciteit bereikt!")
+        proces1 = surface / data["speed"]["M1"]
+        proces2 = surface / data["speed"]["M2"]
+        proces3 = surface / data["speed"]["M3"]
+        proces4 = surface / data["speed"]["M4"] if n == 4 else float("inf")
 
-        if su1 == min(su1, su2, su3, su4):
+        min_su = min(su1, su2, su3, su4)
+        kandidaten = []
+        if su1 == min_su:
+            kandidaten.append((proces1, 1))
+        if su2 == min_su:
+            kandidaten.append((proces2, 2))
+        if su3 == min_su:
+            kandidaten.append((proces3, 3))
+        if su4 == min_su:
+            kandidaten.append((proces4, 4))
+
+        kandidaten.sort()
+        keuze = kandidaten[0][1]
+
+        if keuze == 1:
             ma1.append(ord_nr)
-            e1 = e1 + su1 + surface / data["speed"]["M1"]
-        elif su2 == min(su1, su2, su3, su4):
+        elif keuze == 2:
             ma2.append(ord_nr)
-            e2 = e2 + su2 + surface / data["speed"]["M2"]
-        elif su3 == min(su1, su2, su3, su4):
+        elif keuze == 3:
             ma3.append(ord_nr)
-            e3 = e3 + su3 + surface / data["speed"]["M3"]
-        elif su4 == min(su1, su2, su3, su4):
+        else:
             ma4.append(ord_nr)
-            e4 = e4 + su4 + surface / data["speed"]["M4"]
-
+            
     experiment_schema = [ma1, ma2, ma3]
     if n == 4:
         experiment_schema.append(ma4)
