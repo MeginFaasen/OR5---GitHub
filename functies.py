@@ -12,18 +12,29 @@ print('\033c')
 
 MACHINE_NAMEN = ["M1", "M2", "M3"]
 
-def laad_data(bestandsnaam: str) -> ProblemData:
+def laad_data(bestandsnaam: str) -> dict:
+    """Laad alle data in en geeft dictionaries terug voor sneller gebruik.
+
+        Returns: 
+            Dict
+    """
     dfo = pd.read_excel(bestandsnaam, 'Orders')
     dfm = pd.read_excel(bestandsnaam, 'Machines')
     dfs = pd.read_excel(bestandsnaam, 'Setups')
 
-    surface_dict=dict(zip(dfo["Order"], dfo["Surface"]))
-    colour_dict=dict(zip(dfo["Order"], dfo["Colour"]))
-    deadline_dict=dict(zip(dfo["Order"], dfo["Deadline"]))
-    penalty_dict=dict(zip(dfo["Order"], dfo["Penalty"]))
-    speed_dict=dict(zip(dfm["Machine"], dfm["Speed"]))
+    return {
+        "surface": dict(zip(dfo["Order"], dfo["Surface"])), #bijv. ORD23: 280
+        "colour": dict(zip(dfo["Order"], dfo["Colour"])),
+        "deadline": dict(zip(dfo["Order"], dfo["Deadline"])),
+        "penalty": dict(zip(dfo["Order"], dfo["Penalty"])),
+        "speed": dict(zip(dfm["Machine"], dfm["Speed"])),
+        "setup": {(rij["From colour"], rij["To colour"]): rij["Setup time"] for _, rij in dfs.iterrows()}, #bijv. ("green", "red"): 6
+        "n_machines": len(dfm),
+        "dfo": dfo,
+    }
 
-def setuptijd(newcol: str, machine: list) -> float:
+
+def setuptijd(data: dict, newcol: str, machine: list) -> float:
     """
     Berekent de setup tijd door de nieuwe kleur te vergelijken met de oude kleur in de machine,
     als de machine nog geen order heeft toegewezen gekregen dan is de setuptijd automatisch nul.
@@ -31,11 +42,11 @@ def setuptijd(newcol: str, machine: list) -> float:
     if not machine:
         su_tijd = 0
     else:
-        oldcol = colour_dict[machine[-1]]
+        oldcol = data["colour"][machine[-1]]
         if oldcol == newcol:
             su_tijd = 0
         else:
-            su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
+            su_tijd = data["setup"][oldcol, newcol]
     return float(su_tijd)
 
 def plot_SA(huidige_lijst: list, best_lijst: list, T_lijst: list):
