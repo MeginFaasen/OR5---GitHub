@@ -1,6 +1,3 @@
-import pandas as pd
-from matplotlib.patches import Patch
-import matplotlib.pyplot as plt
 from functies import setuptijd
 
 # # Voorbeireiding (dictionary voor) Gantt Chart, penalty cost & functies

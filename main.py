@@ -1,10 +1,3 @@
-import pandas as pd
-import math
-from matplotlib.patches import Patch
-import matplotlib.pyplot as plt
-import random
-import copy
-
 from functies import laad_data, pen_cost, plot_SA, export_excel
 from GreedyHeuristic import greedy_EDD
 from SimulatedAnnaeling import random_indelen, simulated_annealing
@@ -54,8 +47,6 @@ def main(bestand):
 
     return greedy_schema, greedy_improved, sa_schema, sa_improved
 
-    
-
-if __name__ == "__main__":
-    main('PaintShop - November 2026.xlsx')   # wordt ALLEEN uitgevoerd als je main.py zelf start
+if __name__ == "__main__": # wordt ALLEEN uitgevoerd als je main.py zelf start
+    main('PaintShop - November 2026.xlsx')   
     # main('PaintShop - September 2026.xlsx')

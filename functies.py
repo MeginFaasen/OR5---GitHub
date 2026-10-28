@@ -1,14 +1,7 @@
-
 import pandas as pd
-from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 import pandas as pd
-import math
-from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
-import random
-import copy
-
 
 MACHINE_NAMEN = ["M1", "M2", "M3"]
 
