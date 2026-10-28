@@ -95,6 +95,53 @@ def plot_SA(huidige_lijst: list, best_lijst: list, T_lijst: list):
     ax1.set_title("Voortgang van Simulated Annealing")
     plt.show()
 
+def export_excel(data: dict, machines: list, bestandsnaam: str):
+    """
+    Schrijft het schema in een Excel-bestand met werkblad 'Schedule',
+    in het door de opdracht voorgeschreven 11-kolommenformaat.
+    Werkt generiek voor elk aantal machines.
+    """
+    n = data["n_machines"]
+    bestandsnaam = f"PaintShop Beste Schema {n}M.xlsx"
+    rijen = []
+
+    for nr, m in enumerate(machines):
+        machine_naam = f"M{nr + 1}"
+        speed = data["speed"][machine_naam]
+        eindtijd = 0
+        verwerkt = []
+
+        for seq, o in enumerate(m, start=1):
+            su = setuptijd(data, data["colour"][o], verwerkt)
+            start = eindtijd + su
+            proces = data["surface"][o] / speed
+            einde = start + proces
+            tard = max(0, einde - data["deadline"][o])
+            cost = tard * data["penalty"][o]
+
+            rijen.append({
+                "Order": o,
+                "Machine": machine_naam,
+                "SeqNo": seq,
+                "Setup": su,
+                "Start": start,
+                "Process": proces,
+                "End": einde,
+                "Deadline": data["deadline"][o],
+                "Tardiness": tard,
+                "Penalty": data["penalty"][o],
+                "Cost": cost,
+            })
+
+            eindtijd = einde
+            verwerkt.append(o)
+
+    schedule_df = pd.DataFrame(rijen)
+    with pd.ExcelWriter(bestandsnaam, engine="openpyxl") as writer:
+        schedule_df.to_excel(writer, sheet_name="Schedule", index=False)
+
+    print(f'Schedule geëxporteerd naar {bestandsnaam} ({len(schedule_df)} rijen)')
+
 # #visualiseren
 # gantt_rows = []
 # def voeg_toe(machine_naam, begin, su, einde, order_naam):
