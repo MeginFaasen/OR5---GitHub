@@ -70,39 +70,29 @@ def plot_SA(huidige_lijst: list, best_lijst: list, T_lijst: list):
 
 
 # Improved search   
-def pen_cost(machines: list):
+def pen_cost(data: dict, machines: list) -> float:
     """
     Berekent de penalty costs.
 
     Returns:
-        
+        float van de penalty kosten
+
     """
-    
     total_pen = 0
-    for m in machines:
-        huidigetijd = 0
+    for nr, m in enumerate(machines):
         eindtijd = 0
         verwerkte_orders = []
+        machine_naam = f"M{nr + 1}" 
+        speed = data["speed"][machine_naam]
 
         for o in m:
-            surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
-            color = dfo.loc[dfo["Order"] == o, "Colour"].item()
-            su = setuptijd(color, verwerkte_orders)
+            surface = data["surface"][o]
+            color = data["colour"][o]
+            su = setuptijd(data, color, verwerkte_orders)
 
-            if m == machines[0]:
-                eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M1', "Speed"].item()
-                tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
-                pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
-
-            elif m == machines[1]:
-                eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M2', "Speed"].item()
-                tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
-                pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
-
-            else:
-                eindtijd += huidigetijd + su + surface/dfm.loc[dfm["Machine"]== 'M3', "Speed"].item()
-                tard = max(0, eindtijd - dfo.loc[dfo["Order"] == o, "Deadline"].item())
-                pen = tard * dfo.loc[dfo["Order"] == o, "Penalty"].item()
+            eindtijd = eindtijd + su + surface / speed
+            tard = max(0, eindtijd - data["deadline"][o])
+            pen = tard * data["penalty"][o]
             total_pen += pen
             verwerkte_orders.append(o)
     return total_pen
