@@ -5,36 +5,36 @@ import matplotlib.pyplot as plt
 import random
 import copy
 
-from functies import plot_SA, laad_data
+from functies import laad_data, pen_cost, plot_SA
 from GreedyHeuristic import greedy_EDD
+from SimulatedAnnaeling import random_indelen, simulated_annealing
+from ImprovedSearch import improving_search
 print('\033c')
 
-# Inladen van de Excel-sheets met 4 machines
-dfo = pd.read_excel('PaintShop - November 2026.xlsx', 'Orders')
-dfm = pd.read_excel('PaintShop - November 2026.xlsx', 'Machines')
-dfs = pd.read_excel('PaintShop - November 2026.xlsx', 'Setups')
-
-# # Inladen van de Excel-sheets met 3 machines
-# dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
-# dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
-# dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
-
-# Voor sneller werk
-surface_dict = dict(zip(dfo["Order"], dfo["Surface"]))
-color_dict = dict(zip(dfo["Order"], dfo["Colour"]))
-deadline_dict = dict(zip(dfo["Order"], dfo["Deadline"]))
-penalty_dict = dict(zip(dfo["Order"], dfo["Penalty"]))
-speed_dict = dict(zip(dfm["Machine"], dfm["Speed"]))
-
-ma1 = []
-ma2 = []
-ma3 = []
-if len(dfm)==4:
-    ma4 = []
 def main(bestand):
     data = laad_data(bestand)
+
+    #Greedy Heuristiek
     greedy_schema = greedy_EDD(data)
     print(f'Greedy penalty: {pen_cost(data, greedy_schema):.2f}')
+
+    #Greedy -> Improved search
+    greedy_improved, greedy_improved_pen = improving_search(data, greedy_schema, iteraties=1000)
+    print(f'Greedy + DIS penalty: {greedy_improved_pen:.2f}')
+
+    #Simulated Annealing
+    random_schema = random_indelen(data)
+    sa_schema, sa_pen, huidige_lijst, best_lijst, T_lijst = simulated_annealing(
+        data, random_schema, T=500, iteraties=5000, alpha=0.999
+    )
+    print(f'SA penalty: {sa_pen:.2f}')
+    plot_SA(huidige_lijst, best_lijst, T_lijst)
+
+    #Simulated annealing -> improved search
+    sa_improved, sa_improved_pen = improving_search(data, sa_schema, iteraties=1000)
+    print(f'SA + DIS penalty: {sa_improved_pen:.2f}')
+
+    return greedy_schema, greedy_improved, sa_schema, sa_improved
 
 if __name__ == "__main__":
     main('PaintShop - November 2026.xlsx')   # wordt ALLEEN uitgevoerd als je main.py zelf start

@@ -8,7 +8,7 @@ from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 import random
 import copy
-print('\033c') 
+
 
 MACHINE_NAMEN = ["M1", "M2", "M3"]
 
@@ -49,27 +49,6 @@ def setuptijd(data: dict, newcol: str, machine: list) -> float:
             su_tijd = data["setup"][oldcol, newcol]
     return float(su_tijd)
 
-def plot_SA(huidige_lijst: list, best_lijst: list, T_lijst: list):
-    fig, ax1 = plt.subplots(figsize=(10, 5))
-
-    ax1.plot(huidige_lijst, color="tab:blue", label="huidige oplossing", linewidth=0.8)
-    ax1.plot(best_lijst, color="tab:orange", label="beste oplossing", linewidth=1.2)
-    ax1.set_xlabel("Iteratie")
-    ax1.set_ylabel("Penalty cost")
-
-    ax2 = ax1.twinx()
-    ax2.plot(T_lijst, color="tab:green", label="temperatuur")
-    ax2.set_ylabel("Temperatuur")
-
-    lijnen1, labels1 = ax1.get_legend_handles_labels()
-    lijnen2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lijnen1 + lijnen2, labels1 + labels2, loc="upper right")
-
-    ax1.set_title("Voortgang van Simulated Annealing")
-    plt.show()
-
-
-# Improved search   
 def pen_cost(data: dict, machines: list) -> float:
     """
     Berekent de penalty costs.
@@ -97,37 +76,56 @@ def pen_cost(data: dict, machines: list) -> float:
             verwerkte_orders.append(o)
     return total_pen
 
-#visualiseren
-gantt_rows = []
-def voeg_toe(machine_naam, begin, su, einde, order_naam):
-    """Slaat het setup-blok en het order-blok van één order op voor de Gantt-chart."""
-    gantt_rows.append({
-        "Machine": machine_naam,
-        "Start setup": begin,
-        "Einde setup": begin + su,
-        "Start order": begin + su,
-        "Einde order": einde,
-        "Label": order_naam,
-    })
+def plot_SA(huidige_lijst: list, best_lijst: list, T_lijst: list):
+    fig, ax1 = plt.subplots(figsize=(10, 5))
 
-def bouw_gantt(machines: list):
-    if len(machines)==3:
-        machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3}
-    else: 
-        machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3, "M4": ma4}
+    ax1.plot(huidige_lijst, color="tab:blue", label="huidige oplossing", linewidth=0.8)
+    ax1.plot(best_lijst, color="tab:orange", label="beste oplossing", linewidth=1.2)
+    ax1.set_xlabel("Iteratie")
+    ax1.set_ylabel("Penalty cost")
 
-    for naam, orders in machines_dict.items():
-        eindtijd = 0
-        verwerkte_orders = []
-        speed = dfm.loc[dfm["Machine"] == naam, "Speed"].item()
+    ax2 = ax1.twinx()
+    ax2.plot(T_lijst, color="tab:green", label="temperatuur")
+    ax2.set_ylabel("Temperatuur")
 
-        for o in orders:
-            surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
-            color = dfo.loc[dfo["Order"] == o, "Colour"].item()
-            su = setuptijd(color, verwerkte_orders)
+    lijnen1, labels1 = ax1.get_legend_handles_labels()
+    lijnen2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lijnen1 + lijnen2, labels1 + labels2, loc="upper right")
 
-            begin = eindtijd
-            eindtijd = begin + su + surface / speed
+    ax1.set_title("Voortgang van Simulated Annealing")
+    plt.show()
 
-            voeg_toe(naam, begin, su, eindtijd, o)
-            verwerkte_orders.append(o)
+# #visualiseren
+# gantt_rows = []
+# def voeg_toe(machine_naam, begin, su, einde, order_naam):
+#     """Slaat het setup-blok en het order-blok van één order op voor de Gantt-chart."""
+#     gantt_rows.append({
+#         "Machine": machine_naam,
+#         "Start setup": begin,
+#         "Einde setup": begin + su,
+#         "Start order": begin + su,
+#         "Einde order": einde,
+#         "Label": order_naam,
+#     })
+
+# def bouw_gantt(machines: list):
+#     if len(machines)==3:
+#         machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3}
+#     else: 
+#         machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3, "M4": ma4}
+
+#     for naam, orders in machines_dict.items():
+#         eindtijd = 0
+#         verwerkte_orders = []
+#         speed = dfm.loc[dfm["Machine"] == naam, "Speed"].item()
+
+#         for o in orders:
+#             surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
+#             color = dfo.loc[dfo["Order"] == o, "Colour"].item()
+#             su = setuptijd(color, verwerkte_orders)
+
+#             begin = eindtijd
+#             eindtijd = begin + su + surface / speed
+
+#             voeg_toe(naam, begin, su, eindtijd, o)
+#             verwerkte_orders.append(o)

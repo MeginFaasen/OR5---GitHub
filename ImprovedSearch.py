@@ -4,19 +4,13 @@ from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 import random
 import copy
-print('\033c')
 
-# Inladen van de Excel-sheets
-dfo = pd.read_excel('PaintShop - September 2026.xlsx', 'Orders')
-dfm = pd.read_excel('PaintShop - September 2026.xlsx', 'Machines')
-dfs = pd.read_excel('PaintShop - September 2026.xlsx', 'Setups')
-
-from functies import setuptijd, pen_cost, voeg_toe, bouw_gantt
+from functies import pen_cost
 
 # Improved search
-def improving_search(beste_schema: list, iteraties: int):
-    machines = copy.deepcopy(beste_schema)   # werk op een kopie, niet op het origineel
-    huidige = pen_cost(machines)
+def improving_search(data: dict, beste_schema: list, iteraties: int):
+    machines = copy.deepcopy(beste_schema)   
+    huidige = pen_cost(data, machines)
     best = huidige
     improved_schema = copy.deepcopy(machines)
 
@@ -30,7 +24,7 @@ def improving_search(beste_schema: list, iteraties: int):
         machine1[i1] = swap2
         machine2[i2] = swap1
 
-        kandidaat = pen_cost(machines)
+        kandidaat = pen_cost(data, machines)
         if kandidaat < huidige:  # geaccepteerd
             huidige = kandidaat
             if kandidaat < best:

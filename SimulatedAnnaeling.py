@@ -6,7 +6,6 @@ import random
 import copy
 
 from functies import pen_cost
-print('\033c')
 
 # Machines random indelen
 def random_indelen(data: dict) -> list:

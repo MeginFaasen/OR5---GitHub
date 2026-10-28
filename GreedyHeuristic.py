@@ -2,7 +2,6 @@ import pandas as pd
 from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 from functies import setuptijd
-print('\033c')
 
 # # Voorbeireiding (dictionary voor) Gantt Chart, penalty cost & functies
 # gantt_rows = []
