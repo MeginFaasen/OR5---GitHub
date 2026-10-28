@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import random
 import copy
 
-from functies import plot_SA
+from functies import pen_cost
 print('\033c')
 
 # Machines random indelen
@@ -13,143 +13,74 @@ def random_indelen(data: dict) -> list:
     """
     """
     n = data["n_machines"] 
+
     ma1, ma2, ma3 = [], [], []
     ma4 = [] if n == 4 else None
-    ceiling =  math.ceil(len(data.surface) / n)
+    machines = [ ma1, ma2, ma3]
+    if n == 4:
+        machines.append(ma4)
 
+    ceiling =  math.ceil(len(data["surface"]) / n)
 
-    for i in df.index:
-        ord_nr = dfo.loc[i, "Order"]
-        machine = random.choice(machines)
-        if len(machine) < ceiling:
-            machine.append(ord_nr)
-        else:
-            machines.remove(machine)
-            machine = random.choice(machines)
-            if len(machine) < ceiling:
-                machine.append(ord_nr)
-            else:
-                machines.remove(machine)
-                machine = random.choice(machines)
-                machine.append(ord_nr)
-    if len(dfm)==3:
-        return ma1, ma2, ma3
-    else:
-        return ma1, ma2, ma3, ma4
+    for o in data["surface"].keys():
+        beschikbaar = []
+        for m in machines:
+            if len(m) < ceiling:
+                beschikbaar.append(m)
+        machine = random.choice(beschikbaar)
+        machine.append(o)
+    return machines
 
-def setuptijd(newcol: str, machine: list) -> float:
-    """
-    Berekent de setup tijd door de nieuwe kleur te vergelijken met de oude kleur in de machine,
-    als de machine nog geen order heeft toegewezen gekregen dan is de setuptijd automatisch nul.
-
-    Returns:
-        De setup tijd in een float.
-    """
-    if not machine:
-        su_tijd = 0
-    else:
-        oldcol = color_dict[machine[-1]]
-        if oldcol == newcol:
-            su_tijd = 0
-        else:
-            su_tijd = dfs.loc[(dfs["From colour"] == oldcol) & (dfs["To colour"] == newcol), "Setup time"].item()
-    return float(su_tijd)
-
-
-def pen_cost(machines: list):
-    """
-    Berekent de penalty costs.
-
-    Returns:
-        
-
-    """
-    total_pen = 0
-    for nr, m in enumerate(machines):
-        eindtijd = 0
-        verwerkte_orders = []
-        machine_naam = f"M{nr + 1}" 
-        speed = speed_dict[machine_naam]
-
-        for o in m:
-            surface = surface_dict[o]
-            color = color_dict[o]
-            su = setuptijd(color, verwerkte_orders)
-
-            eindtijd = eindtijd + su + surface / speed
-            tard = max(0, eindtijd - deadline_dict[o])
-            pen = tard * penalty_dict[o]
-            total_pen += pen
-            verwerkte_orders.append(o)
-    return total_pen
     
-# simulated annealing  
-random_indelen(dfo)
-print('Initiele indeling:')
-print(f'Machine 1: {ma1}')
-print(f'Machine 2: {ma2}')
-print(f'Machine 3: {ma3}')
-if len(dfm)==4:
-    print(f'Machine 4: {ma4}')
+# simulated annealing 
+def simulated_annealing(data: dict, start_schema: list, T: float, iteraties: int, alpha: float):
+    machines = copy.deepcopy(start_schema)
+    huidige = pen_cost(data, machines)
+    best = huidige
+    beste_schema = copy.deepcopy(machines)
+    huidige_lijst, best_lijst, T_lijst = [], [], []
 
-machines = [ma1, ma2, ma3]
-if len(dfm)==4:
-    machines.append(ma4)
+    for i in range(iteraties):
+        machine1 = random.choice(machines)
+        machine2 = random.choice(machines)
+        swap1 = random.choice(machine1)
+        swap2 = random.choice(machine2)
+        i1 = machine1.index(swap1)
+        i2 = machine2.index(swap2)
+        machine1[i1] = swap2
+        machine2[i2] = swap1
 
-huidige = pen_cost(machines)
-best = huidige
-print(f'Initiele penalty: {best:.2f}')
-T = 500 #temperatuur
-iteraties = 5000
-alpha = 0.999
+        kandidaat = pen_cost(data, machines)
+        delta = kandidaat - huidige
+        if delta < 0:
+            geaccepteerd = True
+        else:
+            acceptatie = math.exp(-delta / T)
+            geaccepteerd = random.random() < acceptatie
 
-huidige_lijst = []
-best_lijst = []
-T_lijst = []
+        if geaccepteerd:
+            huidige = kandidaat
+            if kandidaat < best:
+                best = kandidaat
+                beste_schema = copy.deepcopy(machines)
+        else:
+            machine1[i1] = swap1   # swap terugdraaien
+            machine2[i2] = swap2
+        T *= alpha
 
-for i in range(iteraties):
-    machine1 = random.choice(machines)
-    machine2 = random.choice(machines)
-    swap1 = random.choice(machine1)
-    swap2 = random.choice(machine2)
-    i1 = machine1.index(swap1)
-    i2 = machine2.index(swap2)
-    machine1[i1] = swap2
-    machine2[i2] = swap1
+        huidige_lijst.append(huidige)
+        best_lijst.append(best)
+        T_lijst.append(T)
 
-    kandidaat = pen_cost(machines)
-    delta = kandidaat - huidige
-    if delta < 0:
-        geaccepteerd = True
-    else:
-        acceptatie = math.exp(-delta / T)
-        geaccepteerd = random.random() < acceptatie
+    return beste_schema, best, huidige_lijst, best_lijst, T_lijst
 
-    if geaccepteerd:
-        huidige = kandidaat
-        if kandidaat < best:
-            best = kandidaat
-            beste_schema = copy.deepcopy(machines)
-    else:
-        machine1[i1] = swap1   # swap terugdraaien
-        machine2[i2] = swap2
-    T *= alpha
+# # bouw_gantt(beste_schema) /
+# print(f'Beste schema penalty kosten: {pen_cost(beste_schema):.2f}')
+# print('Beste indeling:')
+# for nr, m in enumerate(beste_schema, start=1):
+#     print(f'Machine {nr}: {m}')
 
-    huidige_lijst.append(huidige)
-    best_lijst.append(best)
-    T_lijst.append(T)
-
-if len(dfm)==3:
-    ma1, ma2, ma3 = beste_schema # herstel de beste indeling aan het eind
-else:
-    ma1, ma2, ma3, ma4 = beste_schema
-# bouw_gantt(beste_schema) /
-print(f'Beste schema penalty kosten: {pen_cost(beste_schema):.2f}')
-print('Beste indeling:')
-for nr, m in enumerate(beste_schema, start=1):
-    print(f'Machine {nr}: {m}')
-
-plot_SA(huidige_lijst, best_lijst, T_lijst)
+# plot_SA(huidige_lijst, best_lijst, T_lijst)
 
 # #gantt visualisatie
 # gantt_df = pd.DataFrame.from_dict(gantt_rows)
