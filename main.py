@@ -13,8 +13,8 @@ def main(bestand):
     print(f'Greedy penalty: {pen_cost(data, greedy_schema):.2f}')
 
     #Greedy -> Improved search
-    greedy_improved, greedy_improved_pen = improving_search(data, greedy_schema)
-    print(f'Greedy + DIS penalty: {greedy_improved_pen:.2f}')
+    greedy_improved = improving_search(data, greedy_schema)
+    print(f'Greedy + DIS penalty: {pen_cost(data, greedy_improved):.2f}')
 
     #Simulated Annealing
     random_schema = random_indelen(data)
@@ -25,16 +25,16 @@ def main(bestand):
     plot_SA(huidige_lijst, best_lijst, T_lijst)
 
     #Simulated annealing -> improved search
-    sa_improved, sa_improved_pen = improving_search(data, sa_schema)
-    print(f'SA + DIS penalty: {sa_improved_pen:.2f}')
+    sa_improved = improving_search(data, sa_schema)
+    print(f'SA + DIS penalty: {pen_cost(data, sa_improved):.2f}')
 
     #experiment zo min mogelijk setuptijd
     experiment_schema = experiment_su(data)
     print(f'Experiment setuptijd penalty: {pen_cost(data, experiment_schema):.2f}')
 
     #experiment -> Improved search
-    experiment_improved, experiment_improved_pen = improving_search(data, experiment_schema)
-    print(f'experiment + DIS penalty: {experiment_improved_pen:.2f}')
+    experiment_improved = improving_search(data, experiment_schema)
+    print(f'experiment + DIS penalty: {pen_cost(data, experiment_improved):.2f}')
 
     #het aller beste schema zoeken
     beste_pen = min(
@@ -60,7 +60,7 @@ def main(bestand):
     elif beste_pen == pen_cost(data, experiment_schema):
         beste_schema = experiment_schema
         print(f'Het beste schema is geworden: experiment minste setuptijd!')
-    elif beste_pen == experiment_improved_pen:
+    elif beste_pen == pen_cost(data, experiment_improved):
         beste_schema = experiment_improved
         print(f'Het beste schema is geworden: experiment minste setuptijd improved search!')
 

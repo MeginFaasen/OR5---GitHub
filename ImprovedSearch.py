@@ -30,7 +30,7 @@ def improving_search(data: dict, beste_schema: list):
                             machine1[o1] = swap1
                             machine2[o2] = swap2
 
-    return machines, huidige
+    return machines
 
     # print(f'Improved penalty cost: {best:.2f}')
     # for nr, m in enumerate(improved_schema, start=1):
