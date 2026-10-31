@@ -13,7 +13,7 @@ def main(bestand):
     print(f'Greedy penalty: {pen_cost(data, greedy_schema):.2f}')
 
     #Greedy -> Improved search
-    greedy_improved, greedy_improved_pen = improving_search(data, greedy_schema, iteraties=1000)
+    greedy_improved, greedy_improved_pen = improving_search(data, greedy_schema)
     print(f'Greedy + DIS penalty: {greedy_improved_pen:.2f}')
 
     #Simulated Annealing
@@ -25,7 +25,7 @@ def main(bestand):
     plot_SA(huidige_lijst, best_lijst, T_lijst)
 
     #Simulated annealing -> improved search
-    sa_improved, sa_improved_pen = improving_search(data, sa_schema, iteraties=1000)
+    sa_improved, sa_improved_pen = improving_search(data, sa_schema)
     print(f'SA + DIS penalty: {sa_improved_pen:.2f}')
 
     #experiment zo min mogelijk setuptijd
@@ -33,7 +33,7 @@ def main(bestand):
     print(f'Experiment setuptijd penalty: {pen_cost(data, experiment_schema):.2f}')
 
     #experiment -> Improved search
-    experiment_improved, experiment_improved_pen = improving_search(data, experiment_schema, iteraties=1000)
+    experiment_improved, experiment_improved_pen = improving_search(data, experiment_schema)
     print(f'experiment + DIS penalty: {experiment_improved_pen:.2f}')
 
     #het aller beste schema zoeken
@@ -67,5 +67,5 @@ def main(bestand):
     return greedy_schema, greedy_improved, sa_schema, sa_improved, experiment_schema, experiment_improved
 
 if __name__ == "__main__": # wordt ALLEEN uitgevoerd als je main.py zelf start
-    main('PaintShop - November 2026.xlsx')   
-    # main('PaintShop - September 2026.xlsx')
+    # main('PaintShop - November 2026.xlsx')   
+    main('PaintShop - September 2026.xlsx')

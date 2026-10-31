@@ -1,40 +1,41 @@
-import random
 import copy
 
 from functies import pen_cost
 
 # Improved search
-def improving_search(data: dict, beste_schema: list, iteraties: int):
+def improving_search(data: dict, beste_schema: list):
     machines = copy.deepcopy(beste_schema)   
     huidige = pen_cost(data, machines)
-    best = huidige
-    improved_schema = copy.deepcopy(machines)
+    
+    lokaal_opt = True
+    while lokaal_opt: #blijft doorgaan zolang de vorige ronde een verbetering vond
+        lokaal_opt = False
+        for m1 in range(len(machines)):
+            for o1 in range(len(machines[m1])):
+                for m2 in range(m1, len(machines)):
+                    start = o1 + 1 if m2 == m1 else 0
+                    for o2 in range(start, len(machines[m2])):
+                        machine1 = machines[m1]
+                        machine2 = machines[m2]
+                        swap1 = machine1[o1]
+                        swap2 = machine2[o2]
+                        machine1[o1] = swap2
+                        machine2[o2] = swap1
 
-    for i in range(iteraties):
-        machine1 = random.choice(machines)
-        machine2 = random.choice(machines)
-        swap1 = random.choice(machine1)
-        swap2 = random.choice(machine2)
-        i1 = machine1.index(swap1)
-        i2 = machine2.index(swap2)
-        machine1[i1] = swap2
-        machine2[i2] = swap1
+                        kandidaat = pen_cost(data, machines)
+                        if kandidaat < huidige:   # geaccepteerd
+                            huidige = kandidaat
+                            lokaal_opt = True
+                        else:                     # niet geaccepteerd
+                            machine1[o1] = swap1
+                            machine2[o2] = swap2
 
-        kandidaat = pen_cost(data, machines)
-        if kandidaat < huidige:  # geaccepteerd
-            huidige = kandidaat
-            if kandidaat < best:
-                best = kandidaat
-                improved_schema = copy.deepcopy(machines)
-        else:  # niet geaccepteerd
-            machine1[i1] = swap1
-            machine2[i2] = swap2
+    return machines, huidige
 
-    print(f'Improved penalty cost: {best:.2f}')
-    for nr, m in enumerate(improved_schema, start=1):
-        print(f'Machine {nr}: {m}\n')
+    # print(f'Improved penalty cost: {best:.2f}')
+    # for nr, m in enumerate(improved_schema, start=1):
+    #     print(f'Machine {nr}: {m}\n')
 
-    return improved_schema, best
 
 # bouw_gantt(ma1, ma2, ma3) 
 

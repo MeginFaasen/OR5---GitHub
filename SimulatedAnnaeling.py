@@ -29,7 +29,7 @@ def random_indelen(data: dict) -> list:
 
     
 # simulated annealing 
-def simulated_annealing(data: dict, start_schema: list, T: float, iteraties: int, alpha: float):
+def simulated_annealing(data: dict, start_schema: list, T: float, iteraties: int, alpha: float, iteraties_per_T: int = 1):
     machines = copy.deepcopy(start_schema)
     huidige = pen_cost(data, machines)
     best = huidige
@@ -62,7 +62,9 @@ def simulated_annealing(data: dict, start_schema: list, T: float, iteraties: int
         else:
             machine1[i1] = swap1   # swap terugdraaien
             machine2[i2] = swap2
-        T *= alpha
+
+        if (i + 1) % iteraties_per_T == 0:   
+            T *= alpha
 
         huidige_lijst.append(huidige)
         best_lijst.append(best)
