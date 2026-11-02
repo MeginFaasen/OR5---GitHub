@@ -94,7 +94,7 @@ def export_excel(data: dict, machines: list, bestandsnaam: str):
     Werkt generiek voor elk aantal machines.
     """
     n = data["n_machines"]
-    bestandsnaam = f"PaintShop Beste Schema {n}M.xlsx"
+    bestandsnaam = f"Nieuwe beste schema Nov.xlsx"
     rijen = []
 
     for nr, m in enumerate(machines):
