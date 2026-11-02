@@ -19,7 +19,7 @@ def main(bestand):
     #Simulated Annealing
     random_schema = random_indelen(data)
     sa_schema, sa_pen, huidige_lijst, best_lijst, T_lijst = simulated_annealing(
-        data, random_schema, T=500, iteraties=5000, alpha=0.999
+        data, random_schema, T=800, iteraties=8000, alpha=0.99
     )
     print(f'SA penalty: {sa_pen:.2f}')
 
@@ -64,13 +64,13 @@ def main(bestand):
         print(f'Het beste schema is geworden: experiment minste setuptijd improved search!')
 
     # visualiseren
-    plot_SA(huidige_lijst, best_lijst, T_lijst)
+    #plot_SA(huidige_lijst, best_lijst, T_lijst)
     plot_gantt(bouw_gantt(data, beste_schema), titel=f"Beste schema ({bestand})")
-    export_excel(data, beste_schema, bestand)
+    #export_excel(data, beste_schema, bestand)
 
     return greedy_schema, greedy_improved, sa_schema, sa_improved, experiment_schema, experiment_improved
 
 
 if __name__ == "__main__": # wordt ALLEEN uitgevoerd als je main.py zelf start
-    main('PaintShop - November 2026.xlsx')   
-    # main('PaintShop - September 2026.xlsx')
+    # main('PaintShop - November 2026.xlsx')   
+    main('PaintShop - September 2026.xlsx')
