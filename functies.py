@@ -2,8 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
-MACHINE_NAMEN = ["M1", "M2", "M3"]
+# MACHINE_NAMEN = ["M1", "M2", "M3"]
 
 def laad_data(bestandsnaam: str) -> dict:
     """Laad alle data in en geeft dictionaries terug voor sneller gebruik.
@@ -72,13 +73,13 @@ def pen_cost(data: dict, machines: list) -> float:
 def plot_SA(huidige_lijst: list, best_lijst: list, T_lijst: list):
     fig, ax1 = plt.subplots(figsize=(10, 5))
 
-    ax1.plot(huidige_lijst, color="tab:blue", label="huidige oplossing", linewidth=0.8)
-    ax1.plot(best_lijst, color="tab:orange", label="beste oplossing", linewidth=1.2)
+    ax1.plot(huidige_lijst, color="tab:cyan", label="huidige oplossing", linewidth=0.8)
+    ax1.plot(best_lijst, color="#A020F0", label="beste oplossing", linewidth=1.2)
     ax1.set_xlabel("Iteratie")
     ax1.set_ylabel("Penalty cost")
 
     ax2 = ax1.twinx()
-    ax2.plot(T_lijst, color="tab:green", label="temperatuur")
+    ax2.plot(T_lijst, color="tab:gray", label="temperatuur")
     ax2.set_ylabel("Temperatuur")
 
     lijnen1, labels1 = ax1.get_legend_handles_labels()
@@ -135,37 +136,53 @@ def export_excel(data: dict, machines: list, bestandsnaam: str):
 
     print(f'Schedule geëxporteerd naar {bestandsnaam} ({len(schedule_df)} rijen)')
 
-# #visualiseren
-# gantt_rows = []
-# def voeg_toe(machine_naam, begin, su, einde, order_naam):
-#     """Slaat het setup-blok en het order-blok van één order op voor de Gantt-chart."""
-#     gantt_rows.append({
-#         "Machine": machine_naam,
-#         "Start setup": begin,
-#         "Einde setup": begin + su,
-#         "Start order": begin + su,
-#         "Einde order": einde,
-#         "Label": order_naam,
-#     })
+#visualiseren
+def bouw_gantt(data: dict, machines: list) -> list:
+    """Bouwt voor elke order een setup-blok en een order-blok voor de Gantt-chart."""
+    gantt_rows = []
+    for nr, m in enumerate(machines):
+        machine_naam = f"M{nr + 1}"
+        speed = data["speed"][machine_naam]
+        eindtijd = 0
+        verwerkte_orders = []
 
-# def bouw_gantt(machines: list):
-#     if len(machines)==3:
-#         machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3}
-#     else: 
-#         machines_dict = {"M1": ma1, "M2": ma2, "M3": ma3, "M4": ma4}
+        for o in m:
+            su = setuptijd(data, data["colour"][o], verwerkte_orders)
+            begin = eindtijd
+            eindtijd = begin + su + data["surface"][o] / speed
 
-#     for naam, orders in machines_dict.items():
-#         eindtijd = 0
-#         verwerkte_orders = []
-#         speed = dfm.loc[dfm["Machine"] == naam, "Speed"].item()
+            gantt_rows.append({
+                "Machine": machine_naam,
+                "Start setup": begin,
+                "Einde setup": begin + su,
+                "Start order": begin + su,
+                "Einde order": eindtijd,
+                "Label": o,
+            })
+            verwerkte_orders.append(o)
+    return gantt_rows
 
-#         for o in orders:
-#             surface = dfo.loc[dfo["Order"] == o, "Surface"].item()
-#             color = dfo.loc[dfo["Order"] == o, "Colour"].item()
-#             su = setuptijd(color, verwerkte_orders)
 
-#             begin = eindtijd
-#             eindtijd = begin + su + surface / speed
+def plot_gantt(gantt_rows: list, titel: str = ""):
+    """Tekent de planning: per machine een rij, setup in paars en orders in cyaan."""
+    gantt_df = pd.DataFrame.from_dict(gantt_rows)
+    machines_labels = sorted(gantt_df["Machine"].unique())
+    fig, ax = plt.subplots(figsize=(12, 1 + len(machines_labels)))
 
-#             voeg_toe(naam, begin, su, eindtijd, o)
-#             verwerkte_orders.append(o)
+    for x, r in gantt_df.iterrows():
+        y = machines_labels.index(r["Machine"])
+        if r["Einde setup"] > r["Start setup"]:
+            ax.broken_barh([(r["Start setup"], r["Einde setup"] - r["Start setup"])],
+                           (y - 0.4, 0.8), facecolors="tab:purple")
+        ax.broken_barh([(r["Start order"], r["Einde order"] - r["Start order"])],
+                       (y - 0.4, 0.8), facecolors="tab:cyan", edgecolor="white")
+        ax.text((r["Start order"] + r["Einde order"]) / 2, y, r["Label"],
+                ha="center", va="center", color="black", fontsize=7)
+
+    ax.set_yticks(range(len(machines_labels)))
+    ax.set_yticklabels(machines_labels)
+    ax.set_xlabel("Tijd")
+    ax.set_title(titel)
+    ax.legend(handles=[Patch(facecolor="tab:purple", label="Setup"),
+                       Patch(facecolor="tab:cyan", label="Order")])
+    plt.show()
