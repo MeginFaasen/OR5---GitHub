@@ -4,8 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
-# MACHINE_NAMEN = ["M1", "M2", "M3"]
-
 def laad_data(bestandsnaam: str) -> dict:
     """Laad alle data in en geeft dictionaries terug voor sneller gebruik.
 

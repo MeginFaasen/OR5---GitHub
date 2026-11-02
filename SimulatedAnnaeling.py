@@ -71,36 +71,3 @@ def simulated_annealing(data: dict, start_schema: list, T: float, iteraties: int
         T_lijst.append(T)
 
     return beste_schema, best, huidige_lijst, best_lijst, T_lijst
-
-# # bouw_gantt(beste_schema) /
-# print(f'Beste schema penalty kosten: {pen_cost(beste_schema):.2f}')
-# print('Beste indeling:')
-# for nr, m in enumerate(beste_schema, start=1):
-#     print(f'Machine {nr}: {m}')
-
-# plot_SA(huidige_lijst, best_lijst, T_lijst)
-
-# #gantt visualisatie
-# gantt_df = pd.DataFrame.from_dict(gantt_rows)
-
-# machines_labels = [f"M{idx+1}" for idx in range(len(beste_schema))]
-# fig, ax = plt.subplots(figsize=(12, 4))
-
-# for x, r in gantt_df.iterrows():
-#     y = machines_labels.index(r["Machine"])
-#     if r["Einde setup"] > r["Start setup"]:
-#         ax.broken_barh([(r["Start setup"], r["Einde setup"] - r["Start setup"])],
-#                        (y - 0.4, 0.8), facecolors="tab:purple")
-#     ax.broken_barh([(r["Start order"], r["Einde order"] - r["Start order"])],
-#                    (y - 0.4, 0.8), facecolors="tab:cyan", edgecolor="white")
-#     ax.text((r["Start order"] + r["Einde order"]) / 2, y, r["Label"],
-#             ha="center", va="center", color="black", fontsize=7)
-
-# ax.set_yticks(range(len(machines_labels)))
-# ax.set_yticklabels(machines_labels)
-# ax.set_xlabel("Tijd")
-# ax.legend(handles=[
-#     Patch(facecolor="tab:purple", label="Setup"),
-#     Patch(facecolor="tab:cyan", label="Order"),
-# ])
-# plt.show()
